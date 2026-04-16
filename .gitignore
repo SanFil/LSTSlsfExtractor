@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Log files — place your .lsf / .lsf.gz files in logs/ but don't track them
+logs/*
+!logs/.gitkeep
+
+# Export output
+csv_export/
+*.csv
