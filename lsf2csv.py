@@ -43,6 +43,7 @@ import time
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 from imc_parser import parse_imc_xml
 from lsf_reader import IMCMessage, iter_packets
@@ -225,6 +226,35 @@ def find_imc_xml(args_imc: str = None) -> Path:
     print("Error: Could not find IMC.xml. Use --imc to specify the path.",
           file=sys.stderr)
     sys.exit(1)
+  
+def find_imc_xml_in_dir(session_dir: Path) -> Optional[Path]:
+    """
+    Look for IMC.xml or IMC.xml.gz in a session directory.
+    If only the .gz is found, decompress it next to the gz file and return
+    the path to the decompressed IMC.xml.
+    Returns None if neither is found.
+    """
+    import gzip as _gzip
+    from typing import Optional as _Opt
+
+    plain = session_dir / "IMC.xml"
+    compressed = session_dir / "IMC.xml.gz"
+
+    if plain.exists():
+        return plain
+
+    if compressed.exists():
+        try:
+            with _gzip.open(compressed, "rb") as gz_in:
+                data = gz_in.read()
+            plain.write_bytes(data)
+            print(f"  Auto-decompressed {compressed.name} -> {plain.name}")
+            return plain
+        except Exception as e:
+            print(f"  WARNING: Could not decompress {compressed}: {e}")
+            return None
+
+    return None
 
 
 def find_lsf_files(directory: Path) -> list[Path]:
