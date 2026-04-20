@@ -365,7 +365,15 @@ def main():
 
         for i, lsf_path in enumerate(lsf_files, 1):
             print(f"[{i}/{len(lsf_files)}] ", end="")
-
+             if not args.imc:
+                local_imc = find_imc_xml_in_dir(lsf_path.parent)
+                if local_imc:
+                    session_msg_defs = parse_imc_xml(str(local_imc))
+                else:
+                    session_msg_defs = msg_defs  # fall back to the global one
+            else:
+                session_msg_defs = msg_defs
+              
             if args.list:
                 try:
                     list_message_types(lsf_path, msg_defs)
