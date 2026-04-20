@@ -337,7 +337,12 @@ def main():
             print(f"[{i}/{len(lsf_files)}] ", end="")
 
             if args.list:
-                list_message_types(lsf_path, msg_defs)
+                try:
+                    list_message_types(lsf_path, msg_defs)
+                except EOFError as e:
+                    print(f"  WARNING: Skipping {lsf_path} — truncated/corrupt file ({e})")
+                except Exception as e:
+                    print(f"  WARNING: Skipping {lsf_path} — unexpected error ({e})")
             else:
                 out_dir = args.output
                 if out_dir:
@@ -345,7 +350,12 @@ def main():
                     args.output = out_dir / rel
                 else:
                     args.output = None
-                process_single_file(lsf_path, msg_defs, args)
+                try:
+                    process_single_file(lsf_path, msg_defs, args)
+                except EOFError as e:
+                    print(f"  WARNING: Skipping {lsf_path} — truncated/corrupt file ({e})")
+                except Exception as e:
+                    print(f"  WARNING: Skipping {lsf_path} — unexpected error ({e})")
                 args.output = out_dir
             print()
 
